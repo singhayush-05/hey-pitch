@@ -16,11 +16,7 @@ function openCart(){
   const total = cart.reduce((a,b) => a + b.price, 0);
 
   const authSection = currentUser
-    ? `<div class="user-order-badge" style="margin-top:14px">
-         <span class="uob-dot"></span>
-         <span>Signed in as <b>${currentUser.name || currentUser.email}</b> (${currentUser.email})</span>
-         <button class="uob-switch" id="cartSwitchUserBtn" type="button">Switch</button>
-       </div>`
+    ? ""
     : `<div class="auth-gate-card">
          <div class="agc-badge">
            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>

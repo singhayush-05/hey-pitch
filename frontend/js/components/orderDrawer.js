@@ -117,7 +117,7 @@ function renderDrawer(){
       // explainer + gen ai: describe, then book a call. no payment.
       const isEx = s.kind === "explainer";
       const callAuthSection = currentUser
-        ? `<div class="user-order-badge" style="margin-top:12px"><span class="uob-dot"></span><span>Call invite will be sent to <b>${currentUser.email}</b></span><button class="uob-switch" id="switchUserBtn" type="button">Switch</button></div>`
+        ? ""
         : `<div class="auth-gate-card">
              <div class="agc-badge">
                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -148,11 +148,7 @@ function renderDrawer(){
     const lenLabel = s.shortform ? ", " + HP_CONFIG.durationTiers.find(t=>t.id===st.len).label.toLowerCase() : "";
     const noBuild = s.kind === "avatar" && st.avatarMode === "have";
     const authSection = currentUser
-      ? `<div class="user-order-badge">
-           <span class="uob-dot"></span>
-           <span>Signed in as <b>${currentUser.name || currentUser.email}</b> (${currentUser.email})</span>
-           <button class="uob-switch" id="switchUserBtn" type="button">Switch</button>
-         </div>`
+      ? ""
       : `<div class="auth-gate-card">
            <div class="agc-badge">
              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
