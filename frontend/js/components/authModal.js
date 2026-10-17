@@ -3,14 +3,14 @@
    Dynamic login, registration, profile display & session state
    ========================================================= */
 
-let currentUser = null;
-
 /**
  * Check existing authentication session on startup.
  */
 async function initAuth() {
   const token = localStorage.getItem('hp_auth_token');
   if (!token) {
+    currentUser = null;
+    loadUserCart(null);
     updateNavAuthUI(null);
     return;
   }
@@ -19,15 +19,18 @@ async function initAuth() {
     const res = await HeyPitchAPI.getMe();
     if (res?.data?.user) {
       currentUser = res.data.user;
+      loadUserCart(currentUser);
       updateNavAuthUI(currentUser);
     } else {
       currentUser = null;
       HeyPitchAPI.setToken(null);
+      loadUserCart(null);
       updateNavAuthUI(null);
     }
   } catch {
     currentUser = null;
     HeyPitchAPI.setToken(null);
+    loadUserCart(null);
     updateNavAuthUI(null);
   }
 }
@@ -65,11 +68,43 @@ function updateNavAuthUI(user) {
     });
 
     $("#btnLogout")?.addEventListener("click", async () => {
-      $("#userMenu").style.display = "none";
+      const m = $("#userMenu");
+      if (m) m.style.display = "none";
+
+      // 1. Persist the current user's cart in their private user-scoped storage
+      if (currentUser) {
+        saveUserCart(currentUser);
+      }
+
+      // 2. Immediately wipe in-memory cart and guest scratchpad
+      cart = [];
+      try {
+        localStorage.removeItem('hp_cart_guest');
+      } catch {}
+      updateCart();
+
+      // 3. Close open drawers and wipe order modals to ensure zero cross-user data leakage
+      if (typeof closeDrawer === "function") {
+        closeDrawer();
+      }
+      const dm = $("#dashboardModal");
+      if (dm) {
+        dm.style.display = "none";
+        const db = $("#dashBody");
+        if (db) db.innerHTML = "";
+      }
+      const otm = $("#orderTrackerModal");
+      if (otm) {
+        otm.style.display = "none";
+        const tb = $("#trackerBody");
+        if (tb) tb.innerHTML = "";
+      }
+
+      // 4. Invalidate token and reset auth state
       await HeyPitchAPI.logout();
       currentUser = null;
       updateNavAuthUI(null);
-      toast("Signed out successfully");
+      toast("Signed out. Your cart and orders have been safely secured.");
     });
   } else {
     container.innerHTML = `
@@ -167,6 +202,8 @@ function openAuthModal(defaultMode = "login", onComplete = null) {
         if (authMode === "login") {
           const res = await HeyPitchAPI.login({ email, password });
           currentUser = res.data.user;
+          // Restore this user's unique cart space
+          loadUserCart(currentUser);
           updateNavAuthUI(currentUser);
           closeAuthModal();
           toast(`Welcome back, ${currentUser.name || currentUser.email}`);
@@ -176,6 +213,26 @@ function openAuthModal(defaultMode = "login", onComplete = null) {
           const company = $("#regCo")?.value.trim() || "";
           const res = await HeyPitchAPI.register({ email, password, name, company });
           currentUser = res.data.user;
+
+          // Migrate any items drafted as guest into this user's exclusive cart space
+          try {
+            const guestSaved = typeof localStorage !== "undefined" ? localStorage.getItem('hp_cart_guest') : null;
+            if (guestSaved) {
+              const guestItems = JSON.parse(guestSaved);
+              if (Array.isArray(guestItems) && guestItems.length > 0) {
+                cart = guestItems;
+                saveUserCart(currentUser);
+                localStorage.removeItem('hp_cart_guest');
+              } else {
+                loadUserCart(currentUser);
+              }
+            } else {
+              loadUserCart(currentUser);
+            }
+          } catch {
+            loadUserCart(currentUser);
+          }
+
           updateNavAuthUI(currentUser);
           closeAuthModal();
           toast("Account created successfully!");

@@ -467,6 +467,7 @@ function renderDrawer(){
       script: st.script,
       oneThing: st.oneThing
     });
+    saveUserCart();
     updateCart();
     closeDrawer();
     toast("Added to cart");

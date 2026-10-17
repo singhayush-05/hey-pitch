@@ -60,6 +60,7 @@ function openCart(){
 
   $$(".rm").forEach(b => b.addEventListener("click", () => {
     cart.splice(+b.dataset.i, 1);
+    saveUserCart();
     updateCart();
     openCart();
   }));
@@ -136,8 +137,7 @@ function openCart(){
         }
       }
 
-      cart = [];
-      updateCart();
+      clearUserCart(currentUser);
 
       $("#dBody").innerHTML = `
         <div class="done">

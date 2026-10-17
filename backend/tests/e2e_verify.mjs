@@ -3,21 +3,21 @@ import assert from 'node:assert/strict';
 async function runVerification() {
   console.log("=== HEYPITCH VERIFICATION SUITE ===");
 
-  // 1. Verify root index.html serves modern components & scripts
-  console.log("\n1. Testing static server on http://localhost:8080/...");
-  const resHtml = await fetch('http://localhost:8080/');
-  assert.equal(resHtml.status, 200, "Root index.html should return 200");
+  // 1. Verify frontend index.html serves modern components & scripts
+  console.log("\n1. Testing static server on http://localhost:8080/frontend/...");
+  const resHtml = await fetch('http://localhost:8080/frontend/');
+  assert.equal(resHtml.status, 200, "Frontend index.html should return 200");
   const html = await resHtml.text();
   assert.ok(html.includes('id="navAuthBtn"'), "index.html must include navAuthBtn");
   assert.ok(html.includes('id="authModal"'), "index.html must include authModal container");
   assert.ok(html.includes('id="orderTrackerModal"'), "index.html must include orderTrackerModal container");
   assert.ok(html.includes('./js/services/api.js'), "index.html must include api.js");
   assert.ok(html.includes('./js/components/orderDrawer.js'), "index.html must include orderDrawer.js");
-  console.log("✔ Root index.html correctly configured and served by static server.");
+  console.log("✔ Frontend index.html correctly configured and served by static server.");
 
   // 2. Verify orderDrawer.js served on port 8080 has zero mock order IDs
-  console.log("\n2. Testing served js/components/orderDrawer.js...");
-  const resDrawer = await fetch('http://localhost:8080/js/components/orderDrawer.js');
+  console.log("\n2. Testing served frontend/js/components/orderDrawer.js...");
+  const resDrawer = await fetch('http://localhost:8080/frontend/js/components/orderDrawer.js');
   assert.equal(resDrawer.status, 200);
   const drawerCode = await resDrawer.text();
   assert.ok(!drawerCode.includes('Math.random()'), "orderDrawer.js must NEVER use Math.random() for mock orders!");
@@ -28,8 +28,8 @@ async function runVerification() {
   console.log("✔ Served orderDrawer.js verified: 100% real API integration, zero mock fallbacks, strict link checks.");
 
   // 3. Verify responsive.css served on port 8080
-  console.log("\n3. Testing served css/responsive.css...");
-  const resCss = await fetch('http://localhost:8080/css/responsive.css');
+  console.log("\n3. Testing served frontend/css/responsive.css...");
+  const resCss = await fetch('http://localhost:8080/frontend/css/responsive.css');
   assert.equal(resCss.status, 200);
   const css = await resCss.text();
   assert.ok(css.includes('@media(max-width:1040px)'), "responsive.css must include 1040px");

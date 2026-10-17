@@ -19,6 +19,8 @@ function renderPacks(){
     const p = HP_CONFIG.packs.find(x => x.name === e.currentTarget.dataset.pack);
     if(!p.price){ location.hash = "#edit"; return; }
     cart.push({ type:"pack", name:p.name + " pack", meta:p.credits + " credits, monthly", price:p.price, style:null });
-    updateCart(); toast(p.name + " pack added to cart");
+    saveUserCart();
+    updateCart();
+    toast(p.name + " pack added to cart");
   }));
 }

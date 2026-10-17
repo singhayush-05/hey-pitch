@@ -67,12 +67,19 @@ export class OrderService {
     }
 
     let resolvedUserId = user ? (user.userId || user._id) : null;
-    if (!resolvedUserId && isDbConnected() && customerEmail) {
-      try {
-        const { User } = await import('../models/user.model.js');
-        const existingUser = await User.findOne({ email: customerEmail.trim().toLowerCase() }).select('_id');
-        if (existingUser) resolvedUserId = existingUser._id;
-      } catch {}
+    if (!resolvedUserId && customerEmail) {
+      if (isDbConnected()) {
+        try {
+          const { User } = await import('../models/user.model.js');
+          const existingUser = await User.findOne({ email: customerEmail.trim().toLowerCase() }).select('_id');
+          if (existingUser) resolvedUserId = existingUser._id;
+        } catch {}
+      } else {
+        try {
+          const existingUser = await localStore.findUserByEmail(customerEmail.trim());
+          if (existingUser) resolvedUserId = existingUser._id;
+        } catch {}
+      }
     }
 
     const payload = {
@@ -182,11 +189,23 @@ export class OrderService {
       throw new AppError(`Order '${orderIdentifier}' not found`, 404, 'ORDER_NOT_FOUND');
     }
 
-    // Enforce authorization if requestingUser is provided
-    if (requestingUser) {
+    // Enforce authorization & strict user data isolation
+    if (order.user) {
+      if (!requestingUser) {
+        throw new AppError('Authentication required to access this order', 401, 'UNAUTHORIZED');
+      }
+      const requestingId = (requestingUser.userId || requestingUser._id || '').toString();
+      const orderUserId = (order.user._id || order.user).toString();
       const isOwner =
-        (order.user && order.user.toString() === requestingUser.userId) ||
+        orderUserId === requestingId ||
         order.customerEmail.toLowerCase() === requestingUser.email.toLowerCase();
+      const isAdmin = requestingUser.role === 'admin';
+
+      if (!isOwner && !isAdmin) {
+        throw new AppError('You are not authorized to view this order', 403, 'FORBIDDEN');
+      }
+    } else if (requestingUser) {
+      const isOwner = order.customerEmail.toLowerCase() === requestingUser.email.toLowerCase();
       const isAdmin = requestingUser.role === 'admin';
 
       if (!isOwner && !isAdmin) {

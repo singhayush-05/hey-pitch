@@ -7,6 +7,12 @@
  * Open Customer Orders Dashboard.
  */
 async function openDashboard() {
+  if (!currentUser) {
+    toast("Please sign in to view your orders");
+    openAuthModal("login", () => openDashboard());
+    return;
+  }
+
   const modal = $("#dashboardModal");
   if (!modal) return;
 

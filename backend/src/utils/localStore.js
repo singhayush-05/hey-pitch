@@ -140,9 +140,12 @@ class LocalStore {
   }
 
   async listOrders({ userId, userEmail, skip = 0, limit = 10 }) {
+    const targetUserId = userId ? String(userId) : null;
+    const targetEmail = userEmail ? userEmail.toLowerCase().trim() : null;
+
     const filtered = this.data.orders.filter(o => {
-      if (userId && o.user === userId) return true;
-      if (userEmail && o.customerEmail.toLowerCase() === userEmail.toLowerCase()) return true;
+      if (targetUserId && o.user && String(o.user) === targetUserId) return true;
+      if (targetEmail && o.customerEmail && o.customerEmail.toLowerCase().trim() === targetEmail) return true;
       return false;
     });
 
