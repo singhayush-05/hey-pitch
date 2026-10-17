@@ -1,0 +1,83 @@
+/* =========================================================
+   HEYPITCH STORE — Global Design Tokens & Foundation
+   Variables, Resets, Typography, Utilities & Keyframes
+   ========================================================= */
+/* =========================================================
+   HEYPITCH STORE  v0.1
+   Everything commercial lives in HP_CONFIG at the bottom.
+   Change prices, styles, caps and copy there, not in the CSS.
+   ========================================================= */
+:root{
+  --bg:#0A0812; --bg2:#0F0B19; --surface:#15101F; --surface2:#1B1529;
+  --line:#2A2140; --line2:#3A2E5A;
+  --ink:#F4F0FF; --ink2:#D9D2EE; --muted:#A89DC6; --muted2:#7C7198;
+  --violet:#7C5CFF; --violet2:#4A2FC2; --violet3:#B9A6FF; --glow:rgba(124,92,255,.35);
+  --ok:#5EE0A0; --warn:#FFB86B; --bad:#FF6B8B;
+  --r-s:8px; --r-m:14px; --r-l:22px;
+  --font-d:"Bricolage Grotesque", system-ui, sans-serif;
+  --font-b:"Instrument Sans", system-ui, sans-serif;
+  --max:1240px; --gutter:clamp(20px,4vw,56px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+
+body{background:var(--bg);color:var(--ink);font-family:var(--font-b);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+::selection{background:var(--violet);color:#fff}
+h1,h2,h3,.display{font-family:var(--font-d);font-weight:600;letter-spacing:-.02em;line-height:1.05}
+h1{font-size:clamp(40px,6.2vw,84px);font-weight:700;letter-spacing:-.035em}
+h2{font-size:clamp(28px,3.6vw,46px)}
+h3{font-size:clamp(18px,1.6vw,22px);font-weight:600}
+p{color:var(--ink2);max-width:62ch}
+.muted{color:var(--muted)}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
+section{padding:clamp(72px,9vw,128px) 0}
+.grid{display:grid;gap:24px}
+
+/* focus */
+:focus-visible{outline:2px solid var(--violet3);outline-offset:3px;border-radius:6px}
+
+/* keyframes */
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* live style tiles (CSS previews standing in for video loops) */
+.tile{position:relative;overflow:hidden;background:#100C1A;border:1px solid var(--line);display:grid;place-items:center;isolation:isolate}
+.tile .cap{font-family:var(--font-d);font-weight:700;color:#fff;text-align:center;line-height:1;letter-spacing:-.02em;padding:0 10%;z-index:2}
+.tile .cap b{display:inline-block}
+.tile .subject{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:62%;height:58%;border-radius:50% 50% 0 0/40% 40% 0 0;background:radial-gradient(ellipse at 50% 20%,#4c3b7a,#221a38 70%);opacity:.9}
+.tile .head{position:absolute;bottom:42%;left:50%;transform:translateX(-50%);width:32%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 40% 35%,#6b58a8,#2c2350 70%)}
+.tile.bg-bloom{background:linear-gradient(160deg,#2a1841,#0f0b1a)}
+.tile.bg-slate{background:linear-gradient(160deg,#1c1830,#0b0912)}
+.tile.bg-ink{background:#0c0a14}
+.tile.bg-warm{background:linear-gradient(160deg,#2a1d2f,#120c17)}
+.tile.bg-grid{background:#0d0a16;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:22px 22px}
+.tile.bg-motion{background:linear-gradient(135deg,#2b1f5c,#0e0b18 60%)}
+.tile .shape{position:absolute;border-radius:14px;background:var(--violet);opacity:.85}
+/* caption animation families */
+.cap.word b{opacity:.4;animation:hl 1.8s infinite}
+.cap.word b:nth-child(2){animation-delay:.6s}.cap.word b:nth-child(3){animation-delay:1.2s}
+@keyframes hl{0%,20%{opacity:.4;color:#fff}30%,50%{opacity:1;color:var(--violet3)}60%,100%{opacity:.4;color:#fff}}
+.cap.box b{background:var(--violet);padding:.1em .3em;border-radius:6px;animation:pop 1.6s infinite}
+@keyframes pop{0%,15%{transform:scale(1)}25%{transform:scale(1.08)}35%,100%{transform:scale(1)}}
+.cap.behind{z-index:0;font-size:1.6em;opacity:.9}
+.cap.line{border-bottom:3px solid var(--violet3);padding-bottom:.08em}
+.cap.karaoke b{background:linear-gradient(90deg,var(--violet3) 50%,#fff 50%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:kar 2.2s linear infinite}
+@keyframes kar{to{background-position:-100% 0}}
+.cap.glow{text-shadow:0 0 14px var(--violet),0 0 30px var(--violet2)}
+.cap.serif{font-family:Georgia,serif;font-weight:400;font-style:italic;letter-spacing:0}
+.tile .orbit{position:absolute;inset:18% 22%;border:2px solid var(--violet3);border-radius:50%;opacity:.5;animation:spin 8s linear infinite}
+.tile .orbit::after{content:"";position:absolute;top:-6px;left:50%;width:10px;height:10px;border-radius:50%;background:var(--violet3)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tile .bars{position:absolute;bottom:18%;left:14%;right:14%;display:flex;gap:6px;align-items:flex-end;height:30%}
+.tile .bars i{flex:1;background:var(--violet);border-radius:3px 3px 0 0;animation:bar 2.4s ease-in-out infinite}
+.tile .bars i:nth-child(2){animation-delay:.3s}.tile .bars i:nth-child(3){animation-delay:.6s}.tile .bars i:nth-child(4){animation-delay:.9s}
+@keyframes bar{0%,100%{height:30%}50%{height:100%}}
+.tile .scan{position:absolute;inset:0;background:linear-gradient(180deg,transparent 0,rgba(124,92,255,.18) 50%,transparent 100%);animation:scan 3s linear infinite;mix-blend-mode:screen}
+@keyframes scan{from{transform:translateY(-100%)}to{transform:translateY(100%)}}
+/* real video previews */
+.tile.hasvid{background:#000}
+.tile.hasvid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.tile .cap.onvid{position:absolute;left:0;right:0;bottom:12px;z-index:2;font-size:16px;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.tile.hasvid::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.5));pointer-events:none}
