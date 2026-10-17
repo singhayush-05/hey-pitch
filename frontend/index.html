@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HeyPitch. Pick a style. Get the video.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./css/style.css">
+<link rel="stylesheet" href="./css/components.css">
+<link rel="stylesheet" href="./css/responsive.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top"><i></i>HeyPitch</a>
+    <div class="navlinks">
+      <a href="#edit">Edit styles</a>
+      <a href="#made">Made for you</a>
+      <a href="#how">How it works</a>
+      <a href="#packs">Packs</a>
+      <a href="#faq">Questions</a>
+    </div>
+    <div class="navright">
+      <span class="curbadge" id="curBadge" title="Prices shown for your region"></span>
+      <button class="btn btn-g btn-s cartbtn" id="openCart">Cart <b id="cartCount">0</b></button>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+
+<!-- HERO: product create surface -->
+<section class="stage" id="top2">
+  <div class="wrap">
+    <h1>make your <span class="cycle" id="cycle">videos</span><span class="cursor"></span></h1>
+    <p class="sub">Pick a style, we deliver it. Paste a link if you have footage, or let us make it from scratch. No call, no quote, a fixed delivery date.</p>
+
+    <div class="maker">
+      <div class="modes">
+        <button class="on" data-mode="footage">I have footage</button>
+        <button data-mode="made">No footage, make it</button>
+      </div>
+
+      <!-- footage mode: STYLE FIRST, link appears after -->
+      <div id="dropFootage">
+        <!-- step: no style yet, lead with the free option -->
+        <div id="footNoStyle">
+          <button class="freecard" id="freeCard">
+            <div class="freeleft">
+              <div class="freetag">Free</div>
+              <div>
+                <div class="freeh">Try one edit free</div>
+                <div class="freep">A 15 second sample in any style. No card, no signup wall. See our work on your footage first.</div>
+              </div>
+            </div>
+            <div class="freego"><span>Start free</span> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+          </button>
+          <div class="orline"><span>or pick a style and order</span></div>
+          <button class="dropz dropz-pick" id="footPick">
+            <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+            <div class="big">Browse the styles</div>
+            <div class="hint">Choose a look, then add your footage link and length.</div>
+          </button>
+        </div>
+        <!-- step: style chosen, now link + length -->
+        <div class="dropz" id="footHasStyle" style="display:none">
+          <div class="chosen" id="footChosen"></div>
+          <div class="lenrow" id="lenRow"></div>
+          <div class="linkin" style="max-width:560px"><input id="heroLink" type="url" placeholder="Paste your footage link, Drive or Dropbox" autocomplete="off"></div>
+          <div class="verify" id="heroVerify" style="justify-content:center"><span class="dot"></span><span>We check the link the moment you paste it</span></div>
+          <div class="fileinfo" id="heroInfo" style="justify-content:center"></div>
+        </div>
+      </div>
+
+      <!-- made mode: type with live samples + per-type parameters -->
+      <div id="dropMade" style="display:none">
+        <div class="madegrid" id="madeGrid"></div>
+        <div class="madeparams" id="madeParams"></div>
+      </div>
+
+      <div class="makerbar" id="makerBar">
+        <div class="hintline" id="hintLine"></div>
+        <button class="btn btn-p" id="createBtn">Continue</button>
+      </div>
+      <div class="terms" id="termsLine" style="text-align:center;margin-top:12px">Free samples carry a small watermark. Paid orders start once payment clears, and you are billed the exact amount shown.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TABBED GALLERY -->
+<section id="edit" style="padding-top:8px">
+  <div class="wrap">
+    <div class="tabbar"><div class="tabs" id="tabs"></div></div>
+    <div class="gtitle" id="gtitle"></div>
+    <div class="gallery" id="gallery"></div>
+    <button class="showmore" id="showMore" style="display:none">Show more styles</button>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <h2 style="max-width:16ch;margin-bottom:12px">From choosing to delivered, four steps</h2>
+    <p class="muted" style="margin-bottom:36px">The same steps for everyone. The only thing that changes is what we ask for in step two.</p>
+    <div class="steps">
+      <div class="step"><h3>Choose a style and quantity</h3><p>You see the exact look. The price and the delivery date show before you pay.</p></div>
+      <div class="step"><h3>Pay and send what we need</h3><p>A footage link, or a script. We check the link instantly so nothing gets stuck.</p></div>
+      <div class="step"><h3>We produce, you review</h3><p>Your dashboard shows where each video is. One revision round is included.</p></div>
+      <div class="step"><h3>Download and reorder</h3><p>Files, captions and project sources are yours. Reorder the same style in one click.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section>
+  <div class="wrap">
+    <h2 style="max-width:18ch;margin-bottom:36px">What you get here that a freelancer or an unlimited plan cannot give you</h2>
+    <div class="compare">
+      <div class="col">
+        <h3>Elsewhere</h3>
+        <ul>
+          <li>"Unlimited" edits with a hidden cap on how many run at once</li>
+          <li>A call before you can see a price</li>
+          <li>A turnaround range, not a date</li>
+          <li>You find out the look after the first draft</li>
+          <li>Source files and camera RAW cost extra</li>
+          <li>Instructions and access chased over email</li>
+        </ul>
+      </div>
+      <div class="col us">
+        <h3>HeyPitch</h3>
+        <ul>
+          <li>Honest limits printed on every card</li>
+          <li>Price on the card, checkout in a minute</li>
+          <li>A delivery date shown before you pay</li>
+          <li>You choose the look first, so drafts match</li>
+          <li>Project sources included, RAW and LOG accepted</li>
+          <li>Link checked instantly, brand kit saved once</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PACKS -->
+<section id="packs" style="padding-top:0">
+  <div class="wrap">
+    <h2 style="margin-bottom:12px">Buy one, or buy a month</h2>
+    <p class="muted" style="margin-bottom:40px">Every pack is a set of credits. Spend them on any style. Simpler styles cost fewer credits, animation and generated work cost more.</p>
+    <div class="packs" id="packs"></div>
+    <p class="note" style="margin-top:22px">Need white label, a bigger volume, or someone to talk to first? <a href="#" style="color:var(--violet3)">Book a 20 minute call</a>. It is optional, never required.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <h2 style="margin-bottom:28px">Questions</h2>
+    <div class="faq" id="faq"></div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>HeyPitch. Video, animation and AI production, sold as a product.</div>
+    <div>hello@heypitch.in</div>
+  </div>
+</footer>
+
+<!-- DRAWER -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="dhead"><div class="t" id="dTitle">Order</div><button id="dClose" aria-label="Close">&times;</button></div>
+  <div class="dbody" id="dBody"></div>
+  <div class="dfoot" id="dFoot"></div>
+</aside>
+<div class="toast" id="toast"></div>
+<div class="proofpop" id="proof"><div class="pa" id="proofA">J</div><div style="position:relative;flex:1"><div class="pt" id="proofT"></div><div class="pm" id="proofM"></div></div><button class="px" id="proofX" aria-label="Dismiss">&times;</button></div>
+
+<!-- Configuration & Static Data -->
+<script src="./js/config/config.js"></script>
+<script src="./js/data/categories.js"></script>
+<script src="./js/data/styles.js"></script>
+<script src="./js/data/packs.js"></script>
+<script src="./js/data/faq.js"></script>
+
+<!-- Core Infrastructure -->
+<script src="./js/core/dom.js"></script>
+<script src="./js/core/state.js"></script>
+<script src="./js/core/utils.js"></script>
+<script src="./js/services/api.js"></script>
+
+<!-- UI Components -->
+<script src="./js/components/toast.js"></script>
+<script src="./js/components/navbar.js"></script>
+<script src="./js/components/pricing.js"></script>
+<script src="./js/components/faq.js"></script>
+<script src="./js/components/gallery.js"></script>
+<script src="./js/components/orderDrawer.js"></script>
+<script src="./js/components/cart.js"></script>
+
+<!-- Application Bootstrap -->
+<script src="./js/app.js"></script>
+</body>
+</html>
