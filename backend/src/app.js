@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import { config, validateEnv } from './config/env.js';
+import { logger } from './utils/logger.js';
 import { generalLimiter } from './middleware/rateLimiter.middleware.js';
 import { notFoundHandler, errorHandler } from './middleware/error.middleware.js';
 
@@ -69,6 +70,18 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Apply general rate limiting across all API endpoints
 app.use(generalLimiter);
+
+// Structured HTTP request & response logging for live server visibility
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    // Skip health checks to keep Render logs focused on user actions
+    if (req.originalUrl === `${config.apiPrefix}/health` || req.originalUrl === '/health') return;
+    const duration = Date.now() - start;
+    logger.info(`HTTP ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)`);
+  });
+  next();
+});
 
 // Mount API routes under prefix (/api/v1)
 const prefix = config.apiPrefix;

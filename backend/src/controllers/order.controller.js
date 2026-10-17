@@ -1,5 +1,6 @@
 import { OrderService } from '../services/order.service.js';
 import { successResponse } from '../utils/response.js';
+import { logger } from '../utils/logger.js';
 
 export class OrderController {
   /**
@@ -11,6 +12,7 @@ export class OrderController {
         user: req.user,
         ...req.body
       });
+      logger.info(`[ORDER CREATED] Order ${order.orderId} (${order.styleName || order.styleId}) by ${order.customerEmail} - Amount: ${order.pricing.currency} ${order.pricing.total}`);
       return successResponse(res, 201, { order }, 'Order created successfully');
     } catch (err) {
       next(err);

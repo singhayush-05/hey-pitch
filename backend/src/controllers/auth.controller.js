@@ -1,5 +1,6 @@
 import { AuthService } from '../services/auth.service.js';
 import { successResponse } from '../utils/response.js';
+import { logger } from '../utils/logger.js';
 
 export class AuthController {
   /**
@@ -9,6 +10,7 @@ export class AuthController {
     try {
       const { email, password, name, company } = req.body;
       const result = await AuthService.register({ email, password, name, company });
+      logger.info(`[AUTH REGISTER] New user registered: ${result.user?.email || email}`);
       return successResponse(res, 201, result, 'User registered successfully');
     } catch (err) {
       next(err);
@@ -22,6 +24,7 @@ export class AuthController {
     try {
       const { email, password } = req.body;
       const result = await AuthService.login({ email, password });
+      logger.info(`[AUTH LOGIN] User logged in: ${result.user?.email || email}`);
       return successResponse(res, 200, result, 'Login successful');
     } catch (err) {
       next(err);
