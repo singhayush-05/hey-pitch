@@ -3,7 +3,7 @@
    ========================================================= */
 
 function renderFAQ(){
-  const faqEl = $("#faq");
+  const faqEl = $("#faqList") || $(".faq");
   if(!faqEl) return;
   faqEl.innerHTML = HP_CONFIG.faq.map(([q,a],i) => `<div class="q" id="q${i}"><button aria-expanded="false">${q}<i>+</i></button><div class="a">${a}</div></div>`).join("");
   $$(".q button").forEach(b => b.addEventListener("click", () => {

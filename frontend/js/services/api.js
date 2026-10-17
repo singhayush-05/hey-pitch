@@ -125,7 +125,10 @@ const HeyPitchAPI = {
   checkResource: (url) => apiRequest('/verification/check', {
     method: 'POST',
     body: JSON.stringify({ url })
-  })
+  }),
+
+  // Geo IP and Local Currency Detection
+  getGeoLookup: () => apiRequest('/geo/lookup')
 };
 
 // Expose globally for browser usage

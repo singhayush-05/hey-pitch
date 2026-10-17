@@ -3,7 +3,7 @@
    ========================================================= */
 
 function renderPacks(){
-  const packsEl = $("#packs");
+  const packsEl = $("#packsGrid") || $(".packs");
   if(!packsEl) return;
   packsEl.innerHTML = HP_CONFIG.packs.map(p => `
     <div class="pack ${p.best?'best':''}">

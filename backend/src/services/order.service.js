@@ -1,6 +1,8 @@
 import { Order } from '../models/order.model.js';
 import { PricingService } from './pricing.service.js';
 import { AppError } from '../utils/response.js';
+import { isDbConnected } from '../config/database.js';
+import { localStore } from '../utils/localStore.js';
 
 export class OrderService {
   /**
@@ -38,6 +40,12 @@ export class OrderService {
       throw new AppError(`Style '${styleId}' is not supported`, 400, 'INVALID_STYLE_ID');
     }
 
+    if (style.fam === 'cut' || style.fam === 'clip' || style.fam === 'motion') {
+      if (!footageLink || !String(footageLink).trim()) {
+        throw new AppError('A valid footage link is required for this video style', 400, 'MISSING_FOOTAGE_LINK');
+      }
+    }
+
     // Server-authoritative calculation
     const pricing = PricingService.calculateOrderPricing({
       styleId,
@@ -58,8 +66,17 @@ export class OrderService {
       resolvedMode = 'call';
     }
 
-    const order = new Order({
-      user: user ? user.userId : null,
+    let resolvedUserId = user ? (user.userId || user._id) : null;
+    if (!resolvedUserId && isDbConnected() && customerEmail) {
+      try {
+        const { User } = await import('../models/user.model.js');
+        const existingUser = await User.findOne({ email: customerEmail.trim().toLowerCase() }).select('_id');
+        if (existingUser) resolvedUserId = existingUser._id;
+      } catch {}
+    }
+
+    const payload = {
+      user: resolvedUserId,
       customerEmail: customerEmail.trim().toLowerCase(),
       customerCompany: customerCompany ? customerCompany.trim() : '',
       styleId: style.id,
@@ -90,10 +107,15 @@ export class OrderService {
       isTrial,
       trialRemoveWatermark,
       mode: resolvedMode
-    });
+    };
 
-    await order.save();
-    return order;
+    if (isDbConnected()) {
+      const order = new Order(payload);
+      await order.save();
+      return order;
+    } else {
+      return localStore.createOrder(payload);
+    }
   }
 
   /**
@@ -104,34 +126,58 @@ export class OrderService {
     const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10) || 10));
     const skip = (pageNum - 1) * limitNum;
 
-    const query = {
-      $or: [{ user: userId }, { customerEmail: userEmail.toLowerCase() }]
-    };
+    if (isDbConnected()) {
+      const query = {
+        $or: [{ user: userId }, { customerEmail: userEmail.toLowerCase() }]
+      };
 
-    const [orders, total] = await Promise.all([
-      Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
-      Order.countDocuments(query)
-    ]);
+      const [orders, total] = await Promise.all([
+        Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limitNum),
+        Order.countDocuments(query)
+      ]);
 
-    return {
-      orders,
-      pagination: {
-        page: pageNum,
-        limit: limitNum,
-        total,
-        totalPages: Math.ceil(total / limitNum)
-      }
-    };
+      return {
+        orders,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum)
+        }
+      };
+    } else {
+      const { orders, total } = await localStore.listOrders({
+        userId,
+        userEmail,
+        skip,
+        limit: limitNum
+      });
+      return {
+        orders,
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total,
+          totalPages: Math.ceil(total / limitNum)
+        }
+      };
+    }
   }
 
   /**
    * Get single order by orderId or MongoDB ObjectId with authorization enforcement.
    */
   static async getOrderById(orderIdentifier, requestingUser = null) {
-    const isObjectId = orderIdentifier.match(/^[0-9a-fA-F]{24}$/);
-    const query = isObjectId ? { _id: orderIdentifier } : { orderId: orderIdentifier };
+    let order;
 
-    const order = await Order.findOne(query);
+    if (isDbConnected()) {
+      const isObjectId = orderIdentifier.match(/^[0-9a-fA-F]{24}$/);
+      const query = isObjectId ? { _id: orderIdentifier } : { orderId: orderIdentifier };
+      order = await Order.findOne(query);
+    } else {
+      order = await localStore.findOrder({ orderId: orderIdentifier, _id: orderIdentifier });
+    }
+
     if (!order) {
       throw new AppError(`Order '${orderIdentifier}' not found`, 404, 'ORDER_NOT_FOUND');
     }
@@ -168,14 +214,22 @@ export class OrderService {
 
     // Only allow specific intake and client notes updates
     const allowedFields = ['notes', 'brandKitLink', 'handles', 'footageLink', 'script', 'oneThing'];
+    const filteredUpdates = {};
     for (const field of allowedFields) {
       if (updates[field] !== undefined) {
-        order[field] = typeof updates[field] === 'string' ? updates[field].trim() : updates[field];
+        filteredUpdates[field] = typeof updates[field] === 'string' ? updates[field].trim() : updates[field];
       }
     }
 
-    await order.save();
-    return order;
+    if (isDbConnected()) {
+      for (const [k, v] of Object.entries(filteredUpdates)) {
+        order[k] = v;
+      }
+      await order.save();
+      return order;
+    } else {
+      return localStore.updateOrder(order.orderId, filteredUpdates);
+    }
   }
 
   /**
@@ -192,8 +246,12 @@ export class OrderService {
       );
     }
 
-    order.status = 'cancelled';
-    await order.save();
-    return order;
+    if (isDbConnected()) {
+      order.status = 'cancelled';
+      await order.save();
+      return order;
+    } else {
+      return localStore.updateOrder(order.orderId, { status: 'cancelled' });
+    }
   }
 }

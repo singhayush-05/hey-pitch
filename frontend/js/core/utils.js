@@ -38,7 +38,7 @@ function tileHTML(s, extraClass=""){
   // poster shows a still while it loads; falls back to the CSS mockup if no preview.
   if(s.preview){
     const poster = s.poster ? ` poster="${s.poster}"` : "";
-    return `<div class="tile ${s.bg} ${extraClass} hasvid"><video src="${s.preview}"${poster} muted loop playsinline preload="metadata" autoplay></video><div class="cap ${s.cap} onvid">${s.text}</div></div>`;
+    return `<div class="tile ${s.bg} ${extraClass} hasvid"><video src="${s.preview}#t=0.001"${poster} muted loop playsinline preload="metadata"></video><div class="cap ${s.cap} onvid">${s.text}</div></div>`;
   }
   const extra = s.extra === "shape" ? `<i class="shape" style="width:38%;height:18%;left:12%;top:18%;transform:rotate(-8deg)"></i><i class="shape" style="width:20%;height:20%;right:14%;bottom:34%;background:var(--violet3);border-radius:50%"></i>`
     : s.extra === "bars" ? `<div class="bars"><i></i><i></i><i></i><i></i></div>`
@@ -48,52 +48,220 @@ function tileHTML(s, extraClass=""){
   return `<div class="tile ${s.bg} ${extraClass}">${person}${extra}<div class="cap ${s.cap}">${s.text}</div></div>`;
 }
 
-/* ---------- currency: automatic by region ---------- */
+// Global short-form video hover-only playback controller
+let activeHoveredVideo = null;
+
+document.addEventListener("mouseover", (e) => {
+  const card = e.target.closest(".gcard, .madecard, .card, .dc-thumb, .tp-tile, .chosen");
+  if (!card) return;
+  const video = card.querySelector(".tile.hasvid video");
+  if (!video) return;
+
+  if (activeHoveredVideo && activeHoveredVideo !== video) {
+    activeHoveredVideo.pause();
+    activeHoveredVideo = null;
+  }
+
+  activeHoveredVideo = video;
+  video.play().catch(() => {});
+});
+
+document.addEventListener("mouseout", (e) => {
+  const card = e.target.closest(".gcard, .madecard, .card, .dc-thumb, .tp-tile, .chosen");
+  if (!card) return;
+  if (e.relatedTarget && card.contains(e.relatedTarget)) {
+    return;
+  }
+
+  const video = card.querySelector(".tile.hasvid video");
+  if (video) {
+    video.pause();
+    if (activeHoveredVideo === video) {
+      activeHoveredVideo = null;
+    }
+  }
+});
+
+function initVideoAutoplay() {
+  // Ensure all videos start in a static, paused state
+  document.querySelectorAll(".tile.hasvid video").forEach(v => {
+    v.pause();
+  });
+}
+
+/* ---------- currency: automatic by IP and region ---------- */
+function timezoneToCountry() {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    if (tz.includes("Calcutta") || tz.includes("Kolkata") || tz.startsWith("Asia/Kolkata")) return "IN";
+    if (tz.startsWith("Europe/London")) return "GB";
+    if (tz.startsWith("Asia/Dubai")) return "AE";
+    if (tz.startsWith("Europe/Berlin") || tz.startsWith("Europe/Paris") || tz.startsWith("Europe/Madrid") || tz.startsWith("Europe/Rome") || tz.startsWith("Europe/Amsterdam") || tz.startsWith("Europe/Dublin")) return "EU";
+    if (tz.startsWith("America/")) return "US";
+    if (tz.startsWith("Australia/")) return "AU";
+  } catch(e) {}
+  return null;
+}
+
 function detectRegion(){
-  // real deployment: server sets window.__REGION from an IP lookup.
-  // fallback: infer from the browser locale.
+  if(window.__DETECTED_COUNTRY) return window.__DETECTED_COUNTRY;
   if(window.__REGION) return window.__REGION;
+  const fromTz = timezoneToCountry();
+  if(fromTz) return fromTz;
   try{
     const loc = (Intl.DateTimeFormat().resolvedOptions().locale || navigator.language || "en-US");
     const parts = loc.split("-"); const cc = (parts[1] || "").toUpperCase();
-    if(cc) return cc;
+    if(cc && cc.length === 2) return cc;
   }catch(e){}
   return "US";
 }
 
-function renderCurrency(){
-  const region = detectRegion();
-  cur = HP_CONFIG.geoToCurrency[region] || HP_CONFIG.defaultCurrency;
-  const badge = $("#curBadge");
-  if(badge) badge.textContent = `${region} · ${cur}`;
+function currencyToRegion(c){
+  const map = { USD:"US", GBP:"GB", EUR:"EU", AED:"AE", INR:"IN" };
+  return map[c] || "US";
 }
 
-/* ---------- link verification (simulated; replace with backend call) ---------- */
-function verifyLink(url, el, info, cb){
-  el.className = "verify wait"; el.innerHTML = `<span class="dot"></span><span>Checking access</span>`; info.classList.remove("on");
-  let host; try { host = new URL(url).hostname; } catch { host = null; }
-  setTimeout(() => {
-    if(!host || !HOSTS.some(h => host.endsWith(h))){
-      el.className = "verify bad"; el.innerHTML = `<span class="dot"></span><span>That is not a link we can open. Use Google Drive, Dropbox, WeTransfer or Frame.io.</span>`; cb && cb(false); return;
+function applyCurrency(newCur, countryCode){
+  if(!newCur || !HP_CONFIG.currencies || !HP_CONFIG.currencies[newCur]) return;
+  cur = newCur;
+  if(countryCode) window.__DETECTED_COUNTRY = countryCode;
+  window.__DETECTED_CURRENCY = newCur;
+
+  if(typeof localStorage !== "undefined"){
+    localStorage.setItem('hp_currency', newCur);
+    if(countryCode) localStorage.setItem('hp_ip_country', countryCode);
+  }
+
+  renderCurrency();
+  if(typeof renderGallery === "function") renderGallery();
+  if(typeof renderPacks === "function") renderPacks();
+  if(typeof heroMode !== "undefined" && heroMode === "footage" && typeof heroPick !== "undefined" && heroPick && typeof renderLenRow === "function"){
+    renderLenRow();
+  }
+  if(typeof heroMode !== "undefined" && heroMode === "made" && typeof renderMade === "function"){
+    renderMade();
+  }
+  if(typeof updateHint === "function") updateHint();
+  if(typeof drawerState !== "undefined" && drawerState && typeof renderDrawer === "function"){
+    renderDrawer();
+  }
+  if(typeof updateCart === "function") updateCart();
+}
+
+function renderCurrency(){
+  const badge = $("#curBadge");
+  if(badge){
+    const reg = window.__DETECTED_COUNTRY || (typeof localStorage !== "undefined" && localStorage.getItem('hp_ip_country')) || currencyToRegion(cur);
+    badge.textContent = `${reg} · ${cur}`;
+    badge.title = `Prices shown in ${cur} (auto-detected from your IP: ${reg})`;
+    badge.style.cursor = "default";
+  }
+}
+
+async function initIpCurrency(){
+  let detectedCountry = null;
+  let detectedCurrency = null;
+
+  // 1. Query Backend Geo IP lookup endpoint
+  try {
+    if(typeof HeyPitchAPI !== 'undefined' && typeof HeyPitchAPI.getGeoLookup === 'function'){
+      const res = await HeyPitchAPI.getGeoLookup();
+      if(res && res.success && res.data && res.data.currency){
+        detectedCountry = res.data.country;
+        detectedCurrency = res.data.currency;
+      }
     }
+  } catch(err) {
+    // Backend endpoint offline or reloading; fallback gracefully
+  }
+
+  // 2. Query fast external IP-to-Country API fallback
+  if(!detectedCurrency){
+    try {
+      const res = await fetch('https://api.country.is/', { signal: AbortSignal.timeout(2500) });
+      if(res.ok){
+        const data = await res.json();
+        if(data && data.country){
+          detectedCountry = data.country.toUpperCase();
+          detectedCurrency = (HP_CONFIG.geoToCurrency && HP_CONFIG.geoToCurrency[detectedCountry]) || null;
+        }
+      }
+    } catch(e) {
+      // Offline or network restricted
+    }
+  }
+
+  // 3. Fallback to browser timezone and locale
+  if(!detectedCurrency){
+    detectedCountry = timezoneToCountry() || detectRegion() || "US";
+    detectedCurrency = (HP_CONFIG.geoToCurrency && HP_CONFIG.geoToCurrency[detectedCountry]) || HP_CONFIG.defaultCurrency || "USD";
+  }
+
+  if(!HP_CONFIG.currencies || !HP_CONFIG.currencies[detectedCurrency]){
+    detectedCurrency = HP_CONFIG.defaultCurrency || "USD";
+  }
+
+  applyCurrency(detectedCurrency, detectedCountry);
+}
+
+/* ---------- link verification (real backend API integration) ---------- */
+async function verifyLink(url, el, info, cb){
+  if(!url || !url.trim()){
+    el.className = "verify";
+    el.innerHTML = `<span class="dot"></span><span>We check the link the moment you paste it</span>`;
+    info.classList.remove("on");
+    cb && cb(false);
+    return;
+  }
+
+  el.className = "verify wait";
+  el.innerHTML = `<span class="dot"></span><span>Checking link with HeyPitch verification server...</span>`;
+  info.classList.remove("on");
+
+  try {
+    const res = await HeyPitchAPI.checkResource(url.trim());
+    const data = res.data;
+
+    if (data.verified && data.isDownloadable) {
+      el.className = "verify ok";
+      el.innerHTML = `<span class="dot"></span><span>✔ Public Link Verified. Our editors can download your raw files.</span>`;
+      
+      const providerLabel = (data.provider || 'Cloud').replace('_', ' ').toUpperCase();
+      info.innerHTML = `<span>${providerLabel}</span><span>Public Access OK</span><span>Downloadable</span>`;
+      info.classList.add("on");
+      cb && cb(true, 15);
+    } else {
+      el.className = "verify bad";
+      const isRestricted = data.status === "unauthorized" || data.status === "view_only";
+      el.innerHTML = `<span class="dot"></span><div>
+        <b>${isRestricted ? "⚠️ Public Sharing Required:" : "⚠️ Invalid Link:"}</b> ${data.message || 'We cannot open this link. Please check permissions.'}
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">Orders cannot be processed unless set to <b>"Anyone with the link"</b>.</div>
+      </div>`;
+      info.classList.remove("on");
+      cb && cb(false);
+    }
+  } catch (err) {
+    // If backend is unreachable or returns error, perform local syntax safety check
+    let host; try { host = new URL(url).hostname; } catch { host = null; }
+    if(!host || !HOSTS.some(h => host.endsWith(h))){
+      el.className = "verify bad";
+      el.innerHTML = `<span class="dot"></span><span>That is not a link we can open. Use Google Drive, Dropbox, WeTransfer or Frame.io.</span>`;
+      cb && cb(false);
+      return;
+    }
+
     const shared = /usp=sharing|dl=0|dl=1|\/share\//.test(url) || host.includes("wetransfer") || host.includes("we.tl") || host.includes("frame.io");
     if(!shared){
-      el.className = "verify bad"; el.innerHTML = `<span class="dot"></span><span>We cannot open this yet. In the share menu set it to <code>Anyone with the link</code>, then paste again.</span>`; cb && cb(false); return;
+      el.className = "verify bad";
+      el.innerHTML = `<span class="dot"></span><div><b>Public Access Required:</b> Set link to <code>Anyone with the link</code> in Drive/Dropbox. Private links cannot be entertained.</div>`;
+      cb && cb(false);
+      return;
     }
-    // second check: can the team actually DOWNLOAD, not just view
-    el.className = "verify wait"; el.innerHTML = `<span class="dot"></span><span>Link opens. Checking download access</span>`;
-    setTimeout(() => {
-      // Drive "view only" links block download; we detect and ask to allow it
-      const viewOnly = host.includes("drive.google") && /\/view/.test(url) && !/usp=sharing/.test(url);
-      if(viewOnly){
-        el.className = "verify bad"; el.innerHTML = `<span class="dot"></span><span>This is view only, so the team cannot download it. Set access to <code>Anyone with the link</code> and allow download, then paste again.</span>`; cb && cb(false); return;
-      }
-      el.className = "verify ok"; el.innerHTML = `<span class="dot"></span><span>Open and downloadable. Reading the file.</span>`;
-      setTimeout(() => {
-        const mins = 8 + Math.floor(Math.random()*40), size = (mins * 0.11).toFixed(1);
-        info.innerHTML = `<span>MP4</span><span>${mins} min ${Math.floor(Math.random()*59)} sec</span><span>${size} GB</span><span>Download OK</span>`;
-        info.classList.add("on"); cb && cb(true, mins);
-      }, 500);
-    }, 650);
-  }, 700);
+
+    el.className = "verify ok";
+    el.innerHTML = `<span class="dot"></span><span>Link syntax valid. Ready to continue.</span>`;
+    info.innerHTML = `<span>CLOUD FILE</span><span>Download OK</span>`;
+    info.classList.add("on");
+    cb && cb(true, 15);
+  }
 }

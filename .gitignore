@@ -26,3 +26,8 @@ Thumbs.db
 # Coverage and test output
 coverage/
 .nyc_output/
+
+# Markdown documentation (ignore all markdown except README.md)
+*.md
+!README.md
+

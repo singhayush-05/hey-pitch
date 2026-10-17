@@ -33,7 +33,8 @@ h3{font-size:clamp(18px,1.6vw,22px);font-weight:600}
 p{color:var(--ink2);max-width:62ch}
 .muted{color:var(--muted)}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
-section{padding:clamp(72px,9vw,128px) 0}
+section{padding:clamp(44px,4.8vw,68px) 0}
+#faq{padding-bottom:clamp(32px,3.5vw,48px)}
 .grid{display:grid;gap:24px}
 
 /* focus */
@@ -77,7 +78,9 @@ section{padding:clamp(72px,9vw,128px) 0}
 .tile .scan{position:absolute;inset:0;background:linear-gradient(180deg,transparent 0,rgba(124,92,255,.18) 50%,transparent 100%);animation:scan 3s linear infinite;mix-blend-mode:screen}
 @keyframes scan{from{transform:translateY(-100%)}to{transform:translateY(100%)}}
 /* real video previews */
-.tile.hasvid{background:#000}
-.tile.hasvid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
-.tile .cap.onvid{position:absolute;left:0;right:0;bottom:12px;z-index:2;font-size:16px;text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.tile.hasvid{background:#000;position:relative}
+.tile.hasvid video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none}
 .tile.hasvid::after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.5));pointer-events:none}
+.tile .cap.onvid{position:absolute;left:0;right:0;bottom:12px;z-index:2;font-size:16px;text-shadow:0 2px 10px rgba(0,0,0,.6);pointer-events:none}
+
+

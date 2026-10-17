@@ -26,4 +26,4 @@ HP_CONFIG.categories = [
   { id:"nofootage",name:"No footage", desc:"Made from a script. Avatar, explainer or generated film.", ai:true }
 ];
 
-HP_CONFIG.foryou = ["pulse","behindbig","explain","karaoke","promo","twin","quiet","signal"];
+HP_CONFIG.foryou = ["pulse","behindbig","moment","stamp","karaoke","promo","quiet","signal"];

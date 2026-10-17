@@ -44,6 +44,17 @@ export function validateCreateOrder(req, res, next) {
     errors.push({ field: 'avatarMode', message: `Invalid avatarMode. Allowed: ${ALLOWED_AVATAR_MODES.join(', ')}` });
   }
 
+  const selectedStyle = styleId ? STYLES[styleId] : null;
+  if (selectedStyle && (selectedStyle.fam === 'cut' || selectedStyle.fam === 'clip' || selectedStyle.fam === 'motion')) {
+    const { footageLink } = req.body || {};
+    if (!footageLink || typeof footageLink !== 'string' || !footageLink.trim()) {
+      errors.push({
+        field: 'footageLink',
+        message: 'A valid footage link (Google Drive, Dropbox, etc.) is required for this video style'
+      });
+    }
+  }
+
   if (errors.length > 0) {
     return next(new AppError('Invalid order parameters', 400, 'VALIDATION_ERROR', errors));
   }

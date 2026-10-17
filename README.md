@@ -206,6 +206,73 @@ The following integrations are intentionally architected with clear boundaries a
 
 ---
 
-## 11. Known Capabilities & Status
+## 11. Production Deployment Guide
 
-For a complete record of architectural decisions and their current statuses (CONFIRMED, PROPOSED, PENDING, IMPLEMENTED, VERIFIED), consult [DECISIONS.md](file:///c:/Users/ayush/OneDrive/Desktop/hey-pitch/DECISIONS.md).
+### A. Deploying the Backend on Render (Web Service)
+
+1. **Create Web Service:**
+   - Log in to [Render Dashboard](https://dashboard.render.com/) and click **New +** $\to$ **Web Service**.
+   - Connect your GitHub repository.
+2. **Configure Settings:**
+   - **Name:** `heypitch-backend` (or your preferred name)
+   - **Root Directory:** `backend`
+   - **Environment:** `Node`
+   - **Region:** Choose the region closest to your MongoDB Atlas cluster (e.g., Singapore, Frankfurt, Oregon)
+   - **Branch:** `main`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Plan:** Free or Starter
+3. **Set Environment Variables on Render:**
+   In the **Environment Variables** tab, add:
+
+   | Key | Value / Example | Notes |
+   | :--- | :--- | :--- |
+   | `NODE_ENV` | `production` | Enables production security & strict validation |
+   | `PORT` | `10000` | Render injects `PORT` automatically; backend uses it |
+   | `MONGODB_URI` | `mongodb+srv://<user>:<password>@cluster0.jphvzh2.mongodb.net/heypitch?retryWrites=true&w=majority` | Your MongoDB Atlas connection string |
+   | `JWT_SECRET` | `generate-a-strong-random-32-char-string-here` | Required (min 32 chars in production) |
+   | `JWT_EXPIRES_IN` | `7d` | Token lifetime |
+   | `FRONTEND_ORIGINS` | `https://your-frontend.vercel.app,https://your-frontend.pages.dev` | Comma-separated list of your deployed frontend domains |
+   | `API_PREFIX` | `/api/v1` | Default API route prefix |
+
+4. **Note your Backend Live URL:**
+   - Once deployed, Render gives you a URL like: `https://heypitch-backend.onrender.com`.
+
+---
+
+### B. Deploying the Frontend on Vercel
+
+1. **Import Repository:**
+   - Go to [Vercel Dashboard](https://vercel.com/) and click **Add New...** $\to$ **Project**.
+   - Select your GitHub repository.
+2. **Configure Project Settings:**
+   - **Framework Preset:** `Other`
+   - **Root Directory:** Click **Edit** and select `frontend` (Critical!)
+   - **Build Command:** Leave blank (static files)
+   - **Output Directory:** Leave blank (default is current directory `.`)
+3. **Connect Backend URL:**
+   - In `frontend/js/config/config.js`, update `apiBaseUrl` with your Render backend URL:
+     ```javascript
+     apiBaseUrl: "https://heypitch-backend.onrender.com/api/v1"
+     ```
+   - Alternatively, inject it dynamically via window property or custom domain.
+4. **Click Deploy.** Your site will be live at `https://your-app.vercel.app`.
+5. **Update Backend CORS:** Add your new Vercel domain (`https://your-app.vercel.app`) to `FRONTEND_ORIGINS` in your Render Web Service.
+
+---
+
+### C. Deploying the Frontend on Cloudflare Pages
+
+1. **Create Project:**
+   - Log into [Cloudflare Dashboard](https://dash.cloudflare.com/) $\to$ **Workers & Pages** $\to$ **Create application** $\to$ **Pages** $\to$ **Connect to Git**.
+   - Select your GitHub repository.
+2. **Build Settings:**
+   - **Project Name:** `heypitch`
+   - **Production Branch:** `main`
+   - **Framework Preset:** `None`
+   - **Build Command:** Leave empty
+   - **Build Output Directory:** `frontend`
+   - **Root Directory:** (Leave default or `frontend`)
+3. **Deploy:** Click **Save and Deploy**.
+4. **Update Backend CORS:** Add your Cloudflare domain (`https://heypitch.pages.dev`) to `FRONTEND_ORIGINS` on Render.
+

@@ -13,5 +13,9 @@ logs/
 # Coverage
 coverage/
 
-# Exclude Postman files
-/postman/
+
+# Runtime local data
+data/
+
+# Postman files
+postman/

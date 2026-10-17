@@ -4,7 +4,11 @@
    ========================================================= */
 const HP_CONFIG = {
   brand: "HeyPitch",
-  apiBaseUrl: "http://localhost:5000/api/v1",
+  apiBaseUrl: (typeof window !== "undefined" && window.HP_API_BASE)
+    ? window.HP_API_BASE
+    : (typeof window !== "undefined" && window.location.hostname !== "localhost" && window.location.hostname !== "127.0.0.1")
+      ? "https://hey-pitch-backend.onrender.com/api/v1"
+      : "http://localhost:5000/api/v1",
   currencies: {
     USD: { symbol: "$",  rate: 1,    round: 1 },
     GBP: { symbol: "£",  rate: 0.79, round: 1 },

@@ -23,6 +23,7 @@
     </div>
     <div class="navright">
       <span class="curbadge" id="curBadge" title="Prices shown for your region"></span>
+      <div id="navAuthBtn" style="position:relative"></div>
       <button class="btn btn-g btn-s cartbtn" id="openCart">Cart <b id="cartCount">0</b></button>
     </div>
   </div>
@@ -67,8 +68,12 @@
         <div class="dropz" id="footHasStyle" style="display:none">
           <div class="chosen" id="footChosen"></div>
           <div class="lenrow" id="lenRow"></div>
-          <div class="linkin" style="max-width:560px"><input id="heroLink" type="url" placeholder="Paste your footage link, Drive or Dropbox" autocomplete="off"></div>
-          <div class="verify" id="heroVerify" style="justify-content:center"><span class="dot"></span><span>We check the link the moment you paste it</span></div>
+          <div class="hero-link-notice">
+            <span class="dot2" style="background:var(--warn);box-shadow:0 0 10px var(--warn);margin-top:5px;flex:none"></span>
+            <span><b>Public Link Required:</b> Google Drive / Dropbox link <b>must be shared as "Anyone with the link"</b> so editors can download. Orders with private or restricted links cannot be entertained.</span>
+          </div>
+          <div class="linkin" style="max-width:560px"><input id="heroLink" type="url" placeholder="Paste your public Drive or Dropbox link" autocomplete="off"></div>
+          <div class="verify" id="heroVerify" style="justify-content:center"><span class="dot"></span><span>We check public access the moment you paste it</span></div>
           <div class="fileinfo" id="heroInfo" style="justify-content:center"></div>
         </div>
       </div>
@@ -144,20 +149,39 @@
 </section>
 
 <!-- PACKS -->
-<section id="packs" style="padding-top:0">
+<section id="packs">
   <div class="wrap">
-    <h2 style="margin-bottom:12px">Buy one, or buy a month</h2>
-    <p class="muted" style="margin-bottom:40px">Every pack is a set of credits. Spend them on any style. Simpler styles cost fewer credits, animation and generated work cost more.</p>
-    <div class="packs" id="packs"></div>
-    <p class="note" style="margin-top:22px">Need white label, a bigger volume, or someone to talk to first? <a href="#" style="color:var(--violet3)">Book a 20 minute call</a>. It is optional, never required.</p>
+    <div class="sec-head">
+      <span class="sec-badge">Pricing Packs</span>
+      <h2>Buy one, or buy a month</h2>
+      <p class="muted">Every pack is a set of credits. Spend them on any style. Simpler styles cost fewer credits, animation and generated work cost more.</p>
+    </div>
+    <div class="packs" id="packsGrid"></div>
+    <p class="note" style="margin-top:24px;text-align:center">Need white label, a bigger volume, or someone to talk to first? <a href="#" style="color:var(--violet3)">Book a 20 minute call</a>. It is optional, never required.</p>
   </div>
 </section>
 
 <!-- FAQ -->
-<section id="faq" style="padding-top:0">
+<section id="faq">
   <div class="wrap">
-    <h2 style="margin-bottom:28px">Questions</h2>
-    <div class="faq" id="faq"></div>
+    <div class="faq-layout">
+      <div class="faq-side">
+        <span class="sec-badge">FAQ</span>
+        <h2>Questions &amp; Answers</h2>
+        <p class="muted">Everything you need to know about our turnarounds, source files, and delivery guarantees.</p>
+        <div class="faq-card">
+          <div class="faq-card-title">Have a custom inquiry?</div>
+          <p class="faq-card-desc">Need custom animation, white-label editing, or enterprise volume? Reach out directly.</p>
+          <a class="faq-card-btn" href="mailto:hello@heypitch.in">
+            <span>Talk to our team</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="faq-main">
+        <div class="faq" id="faqList"></div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -165,8 +189,23 @@
 
 <footer>
   <div class="wrap">
-    <div>HeyPitch. Video, animation and AI production, sold as a product.</div>
-    <div>hello@heypitch.in</div>
+    <div class="foot-inner">
+      <div class="foot-left">
+        <a class="brand foot-logo" href="#top"><i></i>HeyPitch</a>
+        <p class="foot-desc">Video, animation and AI production, sold as a product with flat upfront pricing.</p>
+        <div class="foot-copy">&copy; 2026 HeyPitch. All rights reserved.</div>
+      </div>
+      <div class="foot-right">
+        <div class="foot-badge">
+          <span class="foot-dot"></span>
+          <span>Accepting new orders &middot; 24&ndash;48h turnaround</span>
+        </div>
+        <a class="foot-email" href="mailto:hello@heypitch.in">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <span>hello@heypitch.in</span>
+        </a>
+      </div>
+    </div>
   </div>
 </footer>
 
@@ -179,6 +218,12 @@
 </aside>
 <div class="toast" id="toast"></div>
 <div class="proofpop" id="proof"><div class="pa" id="proofA">J</div><div style="position:relative;flex:1"><div class="pt" id="proofT"></div><div class="pm" id="proofM"></div></div><button class="px" id="proofX" aria-label="Dismiss">&times;</button></div>
+
+<!-- MODALS (Real, Dynamic, Zero Mock) -->
+<div id="authModal" style="display:none"></div>
+<div id="dashboardModal" style="display:none"></div>
+<div id="orderTrackerModal" style="display:none"></div>
+<div id="currencyModal" style="display:none"></div>
 
 <!-- Configuration & Static Data -->
 <script src="./js/config/config.js"></script>
@@ -201,6 +246,8 @@
 <script src="./js/components/gallery.js"></script>
 <script src="./js/components/orderDrawer.js"></script>
 <script src="./js/components/cart.js"></script>
+<script src="./js/components/authModal.js"></script>
+<script src="./js/components/orderTracker.js"></script>
 
 <!-- Application Bootstrap -->
 <script src="./js/app.js"></script>

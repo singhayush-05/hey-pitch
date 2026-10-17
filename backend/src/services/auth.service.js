@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/user.model.js';
 import { config } from '../config/env.js';
 import { AppError } from '../utils/response.js';
+import { isDbConnected } from '../config/database.js';
+import { localStore } from '../utils/localStore.js';
 
 // In-memory token blacklist for invalidated tokens during server session
 const tokenBlacklist = new Set();
@@ -16,9 +18,9 @@ export class AuthService {
     }
     return jwt.sign(
       {
-        userId: user._id.toString(),
+        userId: (user._id || user.id).toString(),
         email: user.email,
-        role: user.role
+        role: user.role || 'client'
       },
       config.jwt.secret,
       {
@@ -50,26 +52,32 @@ export class AuthService {
   static async register({ email, password, name, company }) {
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Check for duplicate user
-    const existing = await User.findOne({ email: normalizedEmail });
-    if (existing) {
-      throw new AppError('An account with this email already exists', 409, 'DUPLICATE_EMAIL');
+    if (isDbConnected()) {
+      const existing = await User.findOne({ email: normalizedEmail });
+      if (existing) {
+        throw new AppError('An account with this email already exists', 409, 'DUPLICATE_EMAIL');
+      }
+
+      const user = new User({
+        email: normalizedEmail,
+        password,
+        name: name ? name.trim() : '',
+        company: company ? company.trim() : ''
+      });
+
+      await user.save();
+      const token = this.generateToken(user);
+      return { user: user.toJSON(), token };
+    } else {
+      const existing = await localStore.findUserByEmail(normalizedEmail);
+      if (existing) {
+        throw new AppError('An account with this email already exists', 409, 'DUPLICATE_EMAIL');
+      }
+
+      const user = await localStore.createUser({ email: normalizedEmail, password, name, company });
+      const token = this.generateToken(user);
+      return { user: user.toJSON(), token };
     }
-
-    const user = new User({
-      email: normalizedEmail,
-      password,
-      name: name ? name.trim() : '',
-      company: company ? company.trim() : ''
-    });
-
-    await user.save();
-    const token = this.generateToken(user);
-
-    return {
-      user: user.toJSON(),
-      token
-    };
   }
 
   /**
@@ -78,34 +86,52 @@ export class AuthService {
   static async login({ email, password }) {
     const normalizedEmail = email.trim().toLowerCase();
 
-    const user = await User.findOne({ email: normalizedEmail });
-    if (!user) {
-      // Avoid revealing whether the email exists
-      throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
+    if (isDbConnected()) {
+      const user = await User.findOne({ email: normalizedEmail });
+      if (!user) {
+        throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
+      }
+
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
+      }
+
+      const token = this.generateToken(user);
+      return { user: user.toJSON(), token };
+    } else {
+      const user = await localStore.findUserByEmail(normalizedEmail);
+      if (!user) {
+        throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
+      }
+
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
+      }
+
+      const token = this.generateToken(user);
+      return { user: user.toJSON(), token };
     }
-
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
-    }
-
-    const token = this.generateToken(user);
-
-    return {
-      user: user.toJSON(),
-      token
-    };
   }
 
   /**
    * Get authenticated user profile.
    */
   static async getCurrentUser(userId) {
-    const user = await User.findById(userId);
-    if (!user) {
-      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    if (isDbConnected()) {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+      }
+      return user.toJSON();
+    } else {
+      const user = await localStore.findUserById(userId);
+      if (!user) {
+        throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+      }
+      return user.toJSON();
     }
-    return user.toJSON();
   }
 
   /**

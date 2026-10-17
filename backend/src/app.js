@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import paymentRoutes from './routes/payment.routes.js';
 import verificationRoutes from './routes/verification.routes.js';
+import geoRoutes from './routes/geo.routes.js';
 
 // Validate environment variables at module initialization
 validateEnv();
@@ -54,6 +55,7 @@ app.use(`${prefix}/auth`, authRoutes);
 app.use(`${prefix}/orders`, orderRoutes);
 app.use(`${prefix}/payments`, paymentRoutes);
 app.use(`${prefix}/verification`, verificationRoutes);
+app.use(`${prefix}/geo`, geoRoutes);
 
 // Root route for API welcome / discovery
 app.get('/', (req, res) => {
@@ -67,7 +69,8 @@ app.get('/', (req, res) => {
       auth: `${prefix}/auth`,
       orders: `${prefix}/orders`,
       payments: `${prefix}/payments`,
-      verification: `${prefix}/verification`
+      verification: `${prefix}/verification`,
+      geo: `${prefix}/geo/lookup`
     }
   });
 });

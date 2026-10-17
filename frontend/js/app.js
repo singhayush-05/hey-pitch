@@ -15,7 +15,7 @@ function setMode(m){
 /* footage flow: style first, then link + length */
 function selectStyle(id, fromGallery){
   const s = styleById(id);
-  if(s.fam === "built"){ // a made style picked from gallery
+  if(s.fam === "built" && heroMode === "made"){ // a made style picked from gallery when in made mode
     madeStyle = id; setMode("made"); renderMade();
     if(fromGallery){ document.getElementById("top2").scrollIntoView({behavior:"smooth"}); toast(s.name + " selected below"); }
     return;
@@ -33,8 +33,22 @@ function selectStyle(id, fromGallery){
 
 function renderChosen(){
   const s = styleById(heroPick);
-  $("#footChosen").innerHTML = `${tileHTML(s)}<div><div class="cn">${s.name}</div><div class="cm">${s.mood}</div></div><button class="chg" id="footChg">change</button>`;
-  $("#footChg").addEventListener("click", () => { $("#edit").scrollIntoView({behavior:"smooth"}); });
+  $("#footChosen").innerHTML = `${tileHTML(s)}<div><div class="cn">${s.name}</div><div class="cm">${s.mood}</div></div><button class="chg" id="footChg" type="button">change</button>`;
+  $("#footChg").addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setMode("footage");
+    if(activeTab === "nofootage"){
+      activeTab = "popular";
+    }
+    renderTabs();
+    renderGallery();
+    const editSec = document.getElementById("edit");
+    if(editSec){
+      editSec.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+    toast("Choose another video template from the gallery below");
+  });
 }
 
 function renderLenRow(){
@@ -101,7 +115,17 @@ function updateHint(){
 })();
 
 $$(".modes button").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
-$("#footPick")?.addEventListener("click", () => $("#edit").scrollIntoView({behavior:"smooth"}));
+$("#footPick")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  setMode("footage");
+  if(activeTab === "nofootage"){
+    activeTab = "popular";
+    renderTabs();
+    renderGallery();
+  }
+  document.getElementById("edit")?.scrollIntoView({behavior:"smooth", block:"start"});
+});
 $("#freeCard")?.addEventListener("click", () => {
   const id = (heroMode === "footage" && heroPick) ? heroPick : "pulse";
   openOrder(id);
@@ -130,9 +154,33 @@ $("#freeCard")?.addEventListener("click", () => {
 $("#createBtn")?.addEventListener("click", () => {
   if(heroMode === "footage"){
     if(!heroPick){ toast("Choose a style first"); $("#edit").scrollIntoView({behavior:"smooth"}); return; }
+    if(!heroLink || !heroLink.trim()){
+      toast("Please paste your Google Drive or Dropbox footage link first");
+      const inp = $("#heroLink");
+      if(inp){
+        inp.focus();
+        inp.style.borderColor = "var(--bad)";
+        inp.style.boxShadow = "0 0 0 3px rgba(255,107,139,.3)";
+        setTimeout(() => { inp.style.borderColor = ""; inp.style.boxShadow = ""; }, 2500);
+      }
+      return;
+    }
+    if(!heroLinkOk){
+      toast("Please provide a valid, downloadable footage link before continuing");
+      const inp = $("#heroLink");
+      if(inp){
+        inp.focus();
+        inp.style.borderColor = "var(--bad)";
+        inp.style.boxShadow = "0 0 0 3px rgba(255,107,139,.3)";
+        setTimeout(() => { inp.style.borderColor = ""; inp.style.boxShadow = ""; }, 2500);
+      }
+      return;
+    }
     openOrder(heroPick);
     drawerState.len = heroLen;
-    if(heroLink){ drawerState.link = heroLink; drawerState.linkOk = heroLinkOk; drawerState.mins = heroMins; }
+    drawerState.link = heroLink;
+    drawerState.linkOk = heroLinkOk;
+    drawerState.mins = heroMins;
     renderDrawer();
   } else {
     openOrder(madeStyle);
@@ -161,10 +209,16 @@ $("#createBtn")?.addEventListener("click", () => {
 })();
 
 /* ---------- init ---------- */
+initNavbar();
+initAuth();
 renderCurrency();
+if (typeof initIpCurrency === "function") {
+  initIpCurrency();
+}
 renderTabs();
 renderGallery();
 renderPacks();
 renderFAQ();
 updateHint();
+
 

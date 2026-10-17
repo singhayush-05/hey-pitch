@@ -34,6 +34,7 @@ function renderGallery(){
   $("#gallery").innerHTML = shown.map(gcardHTML).join("");
   $("#showMore").style.display = all.length > galleryLimit ? "block" : "none";
   $$(".gcard").forEach(c => c.addEventListener("click", () => selectStyle(c.dataset.style, true)));
+  if (typeof initVideoAutoplay === "function") initVideoAutoplay();
 }
 
 $("#showMore")?.addEventListener("click", () => { galleryLimit += 8; renderGallery(); });

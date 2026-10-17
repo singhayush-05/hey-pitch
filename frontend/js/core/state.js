@@ -3,7 +3,7 @@
    ========================================================= */
 
 // Currency state
-let cur = (typeof HP_CONFIG !== "undefined" && HP_CONFIG.defaultCurrency) ? HP_CONFIG.defaultCurrency : "USD";
+let cur = (typeof localStorage !== "undefined" && localStorage.getItem('hp_currency')) || ((typeof HP_CONFIG !== "undefined" && HP_CONFIG.defaultCurrency) ? HP_CONFIG.defaultCurrency : "USD");
 
 // Cart state
 let cart = [];
