@@ -93,8 +93,11 @@ function updateHint(){
   const h = $("#hintLine"), btn = $("#createBtn"), bar = $("#makerBar");
   if(heroMode === "footage"){
     if(!heroPick){ bar.style.display = "none"; return; }   // free/browse cards carry the action
-    bar.style.display = "";
-    h.textContent = heroLink && heroLinkOk ? "Link provided successfully. Ready to continue." : `${s.name}, ${HP_CONFIG.durationTiers.find(t=>t.id===heroLen).label.toLowerCase()}. Add your footage link.`;
+    const s = heroPick ? styleById(heroPick) : null;
+    const sName = s ? s.name : "Video";
+    const tier = HP_CONFIG.durationTiers.find(t=>t.id===heroLen);
+    const tierLabel = tier ? tier.label.toLowerCase() : "";
+    h.textContent = heroLink && heroLinkOk ? "Link provided successfully. Ready to continue." : `${sName}, ${tierLabel}. Add your footage link.`;
     h.classList.toggle("ready", !!(heroLink && heroLinkOk));
     btn.textContent = "Continue";
   } else {

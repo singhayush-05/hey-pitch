@@ -5,9 +5,10 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ALLOWED_PURPOSES = ['branding', 'ads', 'vsl', 'content', 'product', 'other'];
 const ALLOWED_AVATAR_MODES = ['talking', 'walking', 'photo', 'have'];
 const ALLOWED_LENS = ['s60', 's90'];
+const ALLOWED_MODES = ['order', 'call', 'trial', 'pack'];
 
 export function validateCreateOrder(req, res, next) {
-  const { styleId, customerEmail, qty, len, purpose, avatarMode } = req.body || {};
+  const { styleId, customerEmail, qty, len, purpose, avatarMode, mode } = req.body || {};
   const errors = [];
 
   if (!styleId || !STYLES[styleId]) {
@@ -42,6 +43,10 @@ export function validateCreateOrder(req, res, next) {
 
   if (avatarMode !== undefined && !ALLOWED_AVATAR_MODES.includes(avatarMode)) {
     errors.push({ field: 'avatarMode', message: `Invalid avatarMode. Allowed: ${ALLOWED_AVATAR_MODES.join(', ')}` });
+  }
+
+  if (mode !== undefined && !ALLOWED_MODES.includes(mode)) {
+    errors.push({ field: 'mode', message: `Invalid mode. Allowed: ${ALLOWED_MODES.join(', ')}` });
   }
 
   const selectedStyle = styleId ? STYLES[styleId] : null;

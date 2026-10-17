@@ -144,7 +144,7 @@ const orderSchema = new mongoose.Schema(
     },
     mode: {
       type: String,
-      enum: ['order', 'call', 'trial'],
+      enum: ['order', 'call', 'trial', 'pack'],
       default: 'order'
     },
     payment: {
