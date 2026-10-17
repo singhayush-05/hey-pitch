@@ -208,14 +208,14 @@ async function initIpCurrency(){
 async function verifyLink(url, el, info, cb){
   if(!url || !url.trim()){
     el.className = "verify";
-    el.innerHTML = `<span class="dot"></span><span>We check the link the moment you paste it</span>`;
+    el.innerHTML = `<span class="dot"></span><span>Paste your footage link to attach it to your order</span>`;
     info.classList.remove("on");
     cb && cb(false);
     return;
   }
 
   el.className = "verify wait";
-  el.innerHTML = `<span class="dot"></span><span>Checking link with HeyPitch verification server...</span>`;
+  el.innerHTML = `<span class="dot"></span><span>Checking link format...</span>`;
   info.classList.remove("on");
 
   try {
@@ -224,18 +224,18 @@ async function verifyLink(url, el, info, cb){
 
     if (data.verified && data.isDownloadable) {
       el.className = "verify ok";
-      el.innerHTML = `<span class="dot"></span><span>✔ Public Link Verified. Our editors can download your raw files.</span>`;
+      el.innerHTML = `<span class="dot"></span><span>✔ Link provided successfully. (Ensure access is set to "Anyone with the link")</span>`;
       
       const providerLabel = (data.provider || 'Cloud').replace('_', ' ').toUpperCase();
-      info.innerHTML = `<span>${providerLabel}</span><span>Public Access OK</span><span>Downloadable</span>`;
+      info.innerHTML = `<span>${providerLabel}</span><span>Link Provided</span><span>Format Valid</span>`;
       info.classList.add("on");
       cb && cb(true, 15);
     } else {
       el.className = "verify bad";
       const isRestricted = data.status === "unauthorized" || data.status === "view_only";
       el.innerHTML = `<span class="dot"></span><div>
-        <b>${isRestricted ? "⚠️ Public Sharing Required:" : "⚠️ Invalid Link:"}</b> ${data.message || 'We cannot open this link. Please check permissions.'}
-        <div style="font-size:12px;color:var(--muted);margin-top:3px">Orders cannot be processed unless set to <b>"Anyone with the link"</b>.</div>
+        <b>${isRestricted ? "⚠️ Sharing Permission Needed:" : "⚠️ Invalid Link:"}</b> ${data.message || 'We cannot open this link. Please check permissions.'}
+        <div style="font-size:12px;color:var(--muted);margin-top:3px">Please ensure your link is shared as <b>"Anyone with the link"</b> in your drive settings.</div>
       </div>`;
       info.classList.remove("on");
       cb && cb(false);
@@ -253,14 +253,14 @@ async function verifyLink(url, el, info, cb){
     const shared = /usp=sharing|dl=0|dl=1|\/share\//.test(url) || host.includes("wetransfer") || host.includes("we.tl") || host.includes("frame.io");
     if(!shared){
       el.className = "verify bad";
-      el.innerHTML = `<span class="dot"></span><div><b>Public Access Required:</b> Set link to <code>Anyone with the link</code> in Drive/Dropbox. Private links cannot be entertained.</div>`;
+      el.innerHTML = `<span class="dot"></span><div><b>Sharing Access Required:</b> Set link to <code>Anyone with the link</code> in Drive/Dropbox so editors can access your files.</div>`;
       cb && cb(false);
       return;
     }
 
     el.className = "verify ok";
-    el.innerHTML = `<span class="dot"></span><span>Link syntax valid. Ready to continue.</span>`;
-    info.innerHTML = `<span>CLOUD FILE</span><span>Download OK</span>`;
+    el.innerHTML = `<span class="dot"></span><span>✔ Link provided successfully. (Ensure shared as "Anyone with the link")</span>`;
+    info.innerHTML = `<span>CLOUD FILE</span><span>Link Provided</span>`;
     info.classList.add("on");
     cb && cb(true, 15);
   }

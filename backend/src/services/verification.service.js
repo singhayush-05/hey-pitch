@@ -130,7 +130,7 @@ export class VerificationService {
       isDownloadable: true,
       provider,
       status: 'download_accessible',
-      message: 'Link structure and sharing permissions verified. Ready for video ingestion.',
+      message: 'Link provided successfully. Ensure permissions are set to "Anyone with the link".',
       sourceMetadata: {
         provider,
         verifiedAt: new Date().toISOString()

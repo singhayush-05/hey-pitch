@@ -104,7 +104,7 @@ function openCart(){
           const s = styleById(item.styleId || item.style);
           if (s && (s.fam === "cut" || s.fam === "clip" || s.fam === "motion")) {
             if (!item.link || !item.link.trim() || !item.linkOk) {
-              toast(`"${item.name}" requires a verified footage link before ordering`);
+              toast(`"${item.name}" requires a valid footage link before ordering`);
               btn.disabled = false;
               btn.textContent = `Place Orders · ${money(total)}`;
               return;

@@ -100,8 +100,8 @@ function renderDrawer(){
             <div class="prb-step"><span class="prb-num">3</span><span>Verify role is <b>Viewer</b> (allows downloading)</span></div>
           </div>
         </div>
-        <div class="field"><label for="oLink">Footage link (Must be Public) <span style="color:var(--bad)">*</span></label><input id="oLink" type="url" placeholder="Paste your public Drive or Dropbox link" value="${st.link}"></div>
-        <div class="verify" id="oVerify"><span class="dot"></span><span>Paste your public link and we confirm download access</span></div>
+        <div class="field"><label for="oLink">Footage link (Google Drive / Dropbox) <span style="color:var(--bad)">*</span></label><input id="oLink" type="url" placeholder="Paste your Drive or Dropbox link" value="${st.link}"></div>
+        <div class="verify" id="oVerify"><span class="dot"></span><span>Paste your footage link to attach it to your order</span></div>
         <div class="fileinfo" id="oInfo"></div>
         <div class="field"><label for="oBrand">Brand kit or guidelines (optional)</label><input id="oBrand" type="url" placeholder="Link to logo, fonts, colours" value="${st.brand||''}"></div>
         <div class="field"><label for="oHandles">Where it will post, and handles (optional)</label><input id="oHandles" placeholder="TikTok, Reels, YouTube Shorts, @yourhandle" value="${st.handles||''}"></div>
@@ -170,8 +170,8 @@ function renderDrawer(){
       <div class="callnote" style="margin-top:10px">
         <span class="dot2" style="background:var(--ok);box-shadow:0 0 10px var(--ok)"></span>
         <div>
-          <div><b>Verified Public Footage:</b> <span style="word-break:break-all">${st.link}</span></div>
-          <div style="font-size:12px;color:var(--ok);margin-top:2px">✔ Confirmed Public Access ("Anyone with the link") · Ready for video queue</div>
+          <div><b>Attached Footage Link:</b> <span style="word-break:break-all">${st.link}</span></div>
+          <div style="font-size:12px;color:var(--ok);margin-top:2px">✔ Link provided successfully · Ensure shared as "Anyone with the link"</div>
         </div>
       </div>` : "";
 
@@ -231,7 +231,7 @@ function renderDrawer(){
           ${avatarCall ? `<div class="callnote" style="margin-top:8px"><span class="dot2"></span><span>Next, book your recording and verification slot so we can build the avatar.</span></div>` : ""}
           <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px">
             <span class="chip-id">${realOrder.orderId}</span>
-            <span class="chip-status s-ok">${st.trial ? "Free Trial" : (st.linkOk ? "Footage Verified" : "Order Queued")}</span>
+            <span class="chip-status s-ok">${st.trial ? "Free Trial" : (st.linkOk ? "Footage Attached" : "Order Queued")}</span>
           </div>
           <button class="btn btn-p btn-s" id="btnTrackThis" style="margin-top:14px">Track Order Live</button>
         </div>`;
@@ -268,7 +268,7 @@ function renderDrawer(){
         const vEl = $("#oVerify");
         if (vEl) {
           vEl.className = "verify";
-          vEl.innerHTML = `<span class="dot"></span><span>Paste your public link and we confirm download access</span>`;
+          vEl.innerHTML = `<span class="dot"></span><span>Paste your footage link to attach it to your order</span>`;
         }
         $("#oInfo")?.classList.remove("on");
         return;
@@ -296,7 +296,7 @@ function renderDrawer(){
       const currentLink = $("#oLink")?.value?.trim() || st.link?.trim() || "";
       st.link = currentLink;
       if (!currentLink) {
-        toast("Public link required: Please paste your Google Drive or Dropbox footage link to proceed");
+        toast("Footage link required: Please paste your Google Drive or Dropbox link to proceed");
         const inp = $("#oLink");
         if (inp) {
           inp.focus();
@@ -307,7 +307,7 @@ function renderDrawer(){
         return;
       }
       if (!st.linkOk) {
-        toast("Public link required: Set access to 'Anyone with the link' so our team can download. Private links cannot be entertained.");
+        toast("Please provide a valid Google Drive or Dropbox link to proceed");
         const inp = $("#oLink");
         if (inp) {
           inp.focus();
@@ -440,7 +440,7 @@ function renderDrawer(){
         return;
       }
       if (!st.linkOk) {
-        toast("Please provide a verified, downloadable footage link before adding to cart");
+        toast("Please provide your footage link before adding to cart");
         st.step = 2;
         renderDrawer();
         return;

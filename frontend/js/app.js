@@ -94,8 +94,7 @@ function updateHint(){
   if(heroMode === "footage"){
     if(!heroPick){ bar.style.display = "none"; return; }   // free/browse cards carry the action
     bar.style.display = "";
-    const s = styleById(heroPick);
-    h.textContent = heroLink && heroLinkOk ? "Link checked. Ready to continue." : `${s.name}, ${HP_CONFIG.durationTiers.find(t=>t.id===heroLen).label.toLowerCase()}. Add your footage link.`;
+    h.textContent = heroLink && heroLinkOk ? "Link provided successfully. Ready to continue." : `${s.name}, ${HP_CONFIG.durationTiers.find(t=>t.id===heroLen).label.toLowerCase()}. Add your footage link.`;
     h.classList.toggle("ready", !!(heroLink && heroLinkOk));
     btn.textContent = "Continue";
   } else {
@@ -140,7 +139,7 @@ $("#freeCard")?.addEventListener("click", () => {
   document.addEventListener("input", e => {
     if(e.target.id !== "heroLink") return;
     heroLink = e.target.value.trim(); clearTimeout(t);
-    if(!heroLink){ v().className="verify"; v().style.justifyContent="center"; v().innerHTML=`<span class="dot"></span><span>We check the link the moment you paste it</span>`; info().classList.remove("on"); heroLinkOk=false; updateHint(); return; }
+    if(!heroLink){ v().className="verify"; v().style.justifyContent="center"; v().innerHTML=`<span class="dot"></span><span>Paste your footage link to attach it to your order</span>`; info().classList.remove("on"); heroLinkOk=false; updateHint(); return; }
     t = setTimeout(() => verifyLink(heroLink, v(), info(), (ok,mins)=>{
       heroLinkOk=ok; heroMins=mins||null; updateHint();
       if(ok && mins && mins > HP_CONFIG.sourceCapMins){
