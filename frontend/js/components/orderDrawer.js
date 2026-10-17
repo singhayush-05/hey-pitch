@@ -78,7 +78,7 @@ function renderDrawer(){
       ${(s.build && !noBuild) ? `<div class="opt"><div>One time avatar build<small>Consent, a short recording to spec, and a two minute verification call. Paid once, not per video.</small></div><div style="font-weight:600">${money(s.build)}</div></div>` : ""}
       <label class="opt"><div>Add a second revision round<small>One round is already included. This adds a second, per video.</small></div><input type="checkbox" id="rev" ${st.revision?"checked":""}></label>
       ${delNote}`;
-    foot = `<div class="tot">${money(orderTotal())}<small>${cur}, taxes shown at payment</small></div><button class="btn btn-p" id="next">Continue</button>`;
+    foot = `<div class="tot">${money(orderTotal())}<small>${cur}, taxes shown at payment</small></div><div style="display:flex;gap:8px;align-items:center"><button class="btn btn-g" id="toCart" type="button">Add to cart</button><button class="btn btn-p" id="next" type="button">Continue</button></div>`;
   }
   if(st.step === 2){
     if(f.intake === "footage"){

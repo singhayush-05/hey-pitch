@@ -33,7 +33,11 @@ function renderGallery(){
   const shown = all.slice(0, galleryLimit);
   $("#gallery").innerHTML = shown.map(gcardHTML).join("");
   $("#showMore").style.display = all.length > galleryLimit ? "block" : "none";
-  $$(".gcard").forEach(c => c.addEventListener("click", () => selectStyle(c.dataset.style, true)));
+  $$(".gcard").forEach(c => c.addEventListener("click", () => {
+    const styleId = c.dataset.style;
+    if (typeof selectStyle === "function") selectStyle(styleId, false);
+    if (typeof openOrder === "function") openOrder(styleId);
+  }));
   if (typeof initVideoAutoplay === "function") initVideoAutoplay();
 }
 
