@@ -31,6 +31,16 @@ app.use(
       // Allow requests with no origin (e.g. mobile apps, curl, Postman, server-to-server)
       if (!origin) return callback(null, true);
 
+      // Allow any localhost or 127.0.0.1 port for local frontend development against Render backend
+      if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
+
+      // Allow any Vercel preview or production deployment
+      if (/^https:\/\/.*\.vercel\.app$/.test(origin)) {
+        return callback(null, true);
+      }
+
       const isAllowed = config.frontendOrigins.some(allowed => {
         if (allowed === origin) return true;
         if (allowed.includes('*')) {

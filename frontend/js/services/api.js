@@ -5,7 +5,7 @@
 
 const API_BASE = (typeof HP_CONFIG !== 'undefined' && HP_CONFIG.apiBaseUrl)
   ? HP_CONFIG.apiBaseUrl
-  : 'http://localhost:5000/api/v1';
+  : 'https://hey-pitch.onrender.com/api/v1';
 
 let authToken = localStorage.getItem('hp_auth_token') || null;
 
