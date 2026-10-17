@@ -40,7 +40,8 @@ export class OrderService {
       throw new AppError(`Style '${styleId}' is not supported`, 400, 'INVALID_STYLE_ID');
     }
 
-    if (style.fam === 'cut' || style.fam === 'clip' || style.fam === 'motion') {
+    const isPack = mode === 'pack' || (notes && String(notes).includes('Credit pack'));
+    if (!isPack && (style.fam === 'cut' || style.fam === 'clip' || style.fam === 'motion')) {
       if (!footageLink || !String(footageLink).trim()) {
         throw new AppError('A valid footage link is required for this video style', 400, 'MISSING_FOOTAGE_LINK');
       }

@@ -126,6 +126,7 @@ function openCart(){
             styleId: "pulse", // baseline style for pack purchase
             customerEmail: email,
             qty: 1,
+            mode: "pack",
             notes: `Credit pack order: ${item.name}`,
             currency: cur || "USD"
           });

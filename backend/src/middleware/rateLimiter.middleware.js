@@ -10,6 +10,7 @@ export const generalLimiter = rateLimit({
   max: config.rateLimit.max,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   skip: () => config.isTest,
   handler: (req, res) => {
     return errorResponse(
@@ -29,6 +30,7 @@ export const authLimiter = rateLimit({
   max: config.rateLimit.authMax,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
   skip: () => config.isTest,
   handler: (req, res) => {
     return errorResponse(

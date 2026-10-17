@@ -45,7 +45,8 @@ export function validateCreateOrder(req, res, next) {
   }
 
   const selectedStyle = styleId ? STYLES[styleId] : null;
-  if (selectedStyle && (selectedStyle.fam === 'cut' || selectedStyle.fam === 'clip' || selectedStyle.fam === 'motion')) {
+  const isPack = (req.body && req.body.mode === 'pack') || (req.body && req.body.notes && req.body.notes.includes('Credit pack'));
+  if (!isPack && selectedStyle && (selectedStyle.fam === 'cut' || selectedStyle.fam === 'clip' || selectedStyle.fam === 'motion')) {
     const { footageLink } = req.body || {};
     if (!footageLink || typeof footageLink !== 'string' || !footageLink.trim()) {
       errors.push({
