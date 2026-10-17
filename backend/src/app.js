@@ -28,7 +28,16 @@ app.use(
       // Allow requests with no origin (e.g. mobile apps, curl, Postman, server-to-server)
       if (!origin) return callback(null, true);
 
-      if (config.frontendOrigins.includes(origin) || config.isTest) {
+      const isAllowed = config.frontendOrigins.some(allowed => {
+        if (allowed === origin) return true;
+        if (allowed.includes('*')) {
+          const pattern = '^' + allowed.replace(/\./g, '\\.').replace(/\*/g, '.*') + '$';
+          return new RegExp(pattern).test(origin);
+        }
+        return false;
+      });
+
+      if (isAllowed || config.isTest) {
         return callback(null, true);
       }
 

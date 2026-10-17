@@ -14,7 +14,7 @@ const PORT = parseInt(process.env.PORT, 10) || 5000;
 const API_PREFIX = process.env.API_PREFIX || '/api/v1';
 
 // Parse comma-separated frontend origins
-const rawOrigins = process.env.FRONTEND_ORIGINS || 'http://localhost:8080';
+const rawOrigins = process.env.FRONTEND_ORIGINS || 'http://localhost:8080,https://*.vercel.app';
 const FRONTEND_ORIGINS = rawOrigins
   .split(',')
   .map(o => o.trim())
